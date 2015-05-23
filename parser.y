@@ -43,7 +43,7 @@ lineas:   linea
 
 /*ARCHIVO DE TIPO .OLC*/
 linea:  	IDENTIFICADOR '{' tipoclase b '}'{printf ("Nombre de la clase: %s  \n\n", $1); }
-		| error '}' ','  IDENTIFICADOR                     {  char* nom = "Error Sintactico"; FILE* archivo= NULL;archivo = fopen("errSintactcico.txt","a+");fputs(nom,archivo);fputs(",",archivo);fclose(archivo); yyerrok;}
+		| error '}' ','  IDENTIFICADOR                     {  char* nom = "Error Sintactico"; FILE* archivo= NULL;archivo = fopen("errSintactico.txt","a+");fputs(nom,archivo);fputs(",",archivo);fclose(archivo); yyerrok;}
 		
 tipoclase:	tipoclase a
 		|a
@@ -368,7 +368,7 @@ FILE *pf2;
 pf2 = fopen("archivo2.txt","w"); 
 fclose(pf2);
 FILE *pf3;
-pf3 = fopen("errSintactcico.txt","w"); 
+pf3 = fopen("errSintactico.txt","w"); 
 fclose(pf3);
      if (argc>1)
 	yyin=fopen(argv[1],"rt");

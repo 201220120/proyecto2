@@ -1591,7 +1591,7 @@ yyreduce:
 
   case 6:
 #line 46 "parser.y" /* yacc.c:1646  */
-    {  char* nom = "Error Sintactico"; FILE* archivo= NULL;archivo = fopen("errSintactcico.txt","a+");fputs(nom,archivo);fputs(",",archivo);fclose(archivo); yyerrok;}
+    {  char* nom = "Error Sintactico"; FILE* archivo= NULL;archivo = fopen("errSintactico.txt","a+");fputs(nom,archivo);fputs(",",archivo);fclose(archivo); yyerrok;}
 #line 1596 "parser.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2227,7 +2227,7 @@ FILE *pf2;
 pf2 = fopen("archivo2.txt","w"); 
 fclose(pf2);
 FILE *pf3;
-pf3 = fopen("errSintactcico.txt","w"); 
+pf3 = fopen("errSintactico.txt","w"); 
 fclose(pf3);
      if (argc>1)
 	yyin=fopen(argv[1],"rt");

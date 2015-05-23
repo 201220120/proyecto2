@@ -191,7 +191,12 @@ int main(int argc, char* argv[]) {
 
     }
 
-    if (remove("archivo1.txt") == -1)
+     if (remove("scanner") == -1);
+    if (remove("archivo1.txt") == -1);
+    if (remove("analizador") == -1);
+
+    if (remove("errSintactico.txt") == -1);
+    if (remove("archivo2.txt") == -1);
     return 0;
 }
 
