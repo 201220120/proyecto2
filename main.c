@@ -226,7 +226,7 @@ int generarAnalisis(char* ptrToken) {
         return 0;
     } else {
         printf("El archivo analizado no contiene errores léxicos.\n");
-        printf("\n.:Analisis Sintactico del archivo de entrada: %s\n:.", ptrToken);
+        printf("\n.:Analisis Sintactico del archivo de entrada: %s:.\n", ptrToken);
         char* tmp3 = "./analizador ";
         char* s2 = malloc(sizeof (char)*(2 * strlen(TInOrden) + strlen(tmp2) + 10));
         strcpy(s2, tmp3);
@@ -288,7 +288,7 @@ int main(int argc, char* argv[]) {
 
 
     }
-    /*
+    
         if (remove("scanner") == -1);
         if (remove("archivo1.txt") == -1);
         if (remove("analizador") == -1);
@@ -296,7 +296,7 @@ int main(int argc, char* argv[]) {
         if (remove("errLexico.txt") == -1);
 
         if (remove("errSintactico.txt") == -1);
-        if (remove("archivo2.txt") == -1);*/
+        if (remove("archivo2.txt") == -1);
     return 0;
 }
 

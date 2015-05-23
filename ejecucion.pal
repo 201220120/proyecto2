@@ -24,8 +24,9 @@ inicio funcion
 	funcionimprimir.fun2(hola)
 	graficar(hola)
 
-	imprimir('picachu')
+	imprimir('picachu'? ' pokemon')
+	imprimir('hola'? 3)
 
 
-	ret
+	ret contador
 fin funcion

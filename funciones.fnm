@@ -22,7 +22,7 @@ funcion entero suma_enteros (entero var1, entero var2, decimal var3, booleano va
 		variable entero cubica := resultado;
 	}sino
 	{
-		
+		retornar resultado;
 	}
 	
 	para (variable entero a := 0; <a menor 10>; a := <+ a 1>) 
@@ -43,8 +43,8 @@ funcion decimal resta_enteros ( )
 
 	variable entero resultado2 , resultado4 ;
 
-	variable entero hola,esc:=<+uno 1>;
+	variable entero hola,esc:=<+uno 1.3>;
 
-	retornar 2.1;
+	retornar 4.1;
 
 }

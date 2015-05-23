@@ -135,7 +135,7 @@ declaracionentero:	declaracionentero ',' asigvalor
 		|	asigvalor
 asigvalor:	IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada == NULL) { /* encontrada */
-				printf ("Creación de la variable: %s \n", $1); 
+				printf ("Variable creada: %s \n", $1); 
                                  insertar_diccionario(&diccionario, $1, 0);
                               }
                               else {
@@ -148,7 +148,7 @@ declaraciondecimal:	declaraciondecimal ',' asigvalordec
 		|	asigvalordec
 asigvalordec:	IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada == NULL) { /* encontrada */
-				printf ("Creación de la variable: %s \n", $1); 
+				printf ("Variable creada: %s \n", $1); 
                                  insertar_diccionario(&diccionario, $1, 0);
                               }
                               else {
@@ -263,7 +263,7 @@ tipovariable2:	tipovariable2 ',' asigidentificador
 		|	asigidentificador  
 asigidentificador: IDENTIFICADOR  { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada == NULL) { /* encontrada */
-				printf ("Creación de la variable: %s \n", $1); 
+				printf ("Variable creada: %s \n", $1); 
                                  insertar_diccionario(&diccionario, $1, 0);
                               }
                               else {
