@@ -1,0 +1,50 @@
+
+funcion entero suma_enteros (entero var1, entero var2, decimal var3, booleano var4 )
+{
+	variable entero resultado;
+	variable entero resultado2 := 5;
+	
+	si (<resultado menor resultado2>)
+	{ 
+
+		variable entero uno := resultado2;
+		si (<resultado menor resultado2>)
+		{ 
+			variable entero prueba;
+			variable entero prueba2 := <+ 1 uno>;
+		}
+		mientras(<resultado mayor resultado2>)
+		{
+			variable decimal hola:=2;
+		}
+	}sino si(<resultado mayor resultado2>)
+	{
+		variable entero cubica := resultado;
+	}sino
+	{
+		
+	}
+	
+	para (variable entero a := 0; <a menor 10>; a := <+ a 1>) 
+	{
+	  variable entero cuadrada := <+ cubica 1>;
+	}
+	
+
+	
+
+	retornar resultado2;
+
+}
+
+funcion decimal resta_enteros ( )
+{
+	variable entero resultado;
+
+	variable entero resultado2 , resultado4 ;
+
+	variable entero hola,esc:=<+uno 1>;
+
+	retornar 2.1;
+
+}

@@ -1,0 +1,31 @@
+incluir "funciones.fnm" alias fun
+
+Imprimir {ent par1} 
+inicio funcion
+	contador, contador2, contador4 como ent
+	contador3 como dec
+	contador3 con 3
+	
+
+	si contador3 < contador5 entonces
+		contador2 con 6
+		contador4 con contador2+2
+	fin si
+
+	repetir
+		contador con 5
+	hasta contador3 < contador5+2 
+
+	para contador2 con 0 hasta 9 y paso 1 hacer
+		contador con 12
+	fin para
+
+	funcionimprimir()
+	funcionimprimir.fun2(hola)
+	graficar(hola)
+
+	imprimir('picachu')
+
+
+	ret
+fin funcion
