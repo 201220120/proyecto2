@@ -361,12 +361,7 @@ tipoparametro:	RESERV_ENTERO IDENTIFICADOR {printf ("Parametro de tipo entero: %
 
 %%
 int main(int argc, char** argv) {
-FILE *pf;
-pf = fopen("archivo1.txt","w"); 
-fclose(pf);
-FILE *pf2;
-pf2 = fopen("archivo2.txt","w"); 
-fclose(pf2);
+
 FILE *pf3;
 pf3 = fopen("errSintactico.txt","w"); 
 fclose(pf3);
