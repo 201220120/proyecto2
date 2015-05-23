@@ -183,6 +183,9 @@ int generarSintactico(char* s2, char* nom) {
     char *nombre;
     while (fscanf(arc1, "%s", lineas) == 1) {
         ptrToken = strtok(lineas, ",");
+        FILE *archivo3;
+        archivo3 = fopen("archivo3.txt", "w");
+        fclose(archivo3);
         while (ptrToken != NULL) {
             nombre = ptrToken;
             printf("\n------Se procederá a analizar el archivo:%s------\n", nombre);
@@ -234,9 +237,6 @@ int generarAnalisis(char* ptrToken) {
         system(s2);
 
     }
-
-
-
 }
 
 int main(int argc, char* argv[]) {
@@ -288,15 +288,14 @@ int main(int argc, char* argv[]) {
 
 
     }
-    
-        if (remove("scanner") == -1);
-        if (remove("archivo1.txt") == -1);
-        if (remove("analizador") == -1);
 
-        if (remove("errLexico.txt") == -1);
-
-        if (remove("errSintactico.txt") == -1);
-        if (remove("archivo2.txt") == -1);
+    if (remove("scanner") == -1);
+    if (remove("archivo1.txt") == -1);
+    if (remove("analizador") == -1);
+    if (remove("errLexico.txt") == -1);
+    if (remove("errSintactico.txt") == -1);
+    if (remove("archivo2.txt") == -1);
+    //if (remove("archivo3.txt") == -1);
     return 0;
 }
 

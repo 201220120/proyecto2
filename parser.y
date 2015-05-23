@@ -28,6 +28,64 @@ char *replace_char (char *str, char find, char *replace) {
     free(wk);
     return ret;
 }
+
+void agregarSimbolo (char *nom, char* tipoSimbolo, char *tipoDato, char*ambito, char* descripcion, int valor) {
+	FILE* archivo= NULL;
+	archivo = fopen("archivo3.txt","a+");
+	fputs(nom,archivo);
+	fputs(",",archivo);
+	fputs(tipoSimbolo,archivo);
+	fputs(",",archivo);
+	fputs(tipoDato,archivo);
+	fputs(",",archivo);
+	fputs(ambito,archivo);
+	fputs(",",archivo);
+	fputs(descripcion,archivo);
+	fputs(",",archivo);
+
+	char linea[4];
+	sprintf(linea, "%d", valor);
+	fputs(linea,archivo);
+	fputs(",",archivo);
+	fclose(archivo);  
+}
+void agregarSimboloDecimal (char *nom, char* tipoSimbolo, char *tipoDato, char*ambito, char* descripcion, double valor) {
+	FILE* archivo= NULL;
+	archivo = fopen("archivo3.txt","a+");
+	fputs(nom,archivo);
+	fputs(",",archivo);
+	fputs(tipoSimbolo,archivo);
+	fputs(",",archivo);
+	fputs(tipoDato,archivo);
+	fputs(",",archivo);
+	fputs(ambito,archivo);
+	fputs(",",archivo);
+	fputs(descripcion,archivo);
+	fputs(",",archivo);
+
+	char linea[10];
+	sprintf(linea, "%f", valor);
+	fputs(linea,archivo);
+	fputs(",",archivo);
+	fclose(archivo);  
+}
+void agregarSimboloCadena (char *nom, char* tipoSimbolo, char *tipoDato, char*ambito, char* descripcion, char* valor) {
+	FILE* archivo= NULL;
+	archivo = fopen("archivo3.txt","a+");
+	fputs(nom,archivo);
+	fputs(",",archivo);
+	fputs(tipoSimbolo,archivo);
+	fputs(",",archivo);
+	fputs(tipoDato,archivo);
+	fputs(",",archivo);
+	fputs(ambito,archivo);
+	fputs(",",archivo);
+	fputs(descripcion,archivo);
+	fputs(",",archivo);
+	fputs(valor,archivo);
+	fputs(",",archivo);
+	fclose(archivo);  
+}
 %}
 
 /* Declaraciones de BISON */
@@ -90,8 +148,8 @@ nombrep:	RESERV_NOMBRE ':' '"' TIPO_PRINCIPAL '"'{$$=$4; }
 libreria: libreria funcion
 	| funcion
 	| error ';'{yyerrok;}
-funcion: 	RESERV_FUNCION RESERV_ENTERO c{printf ("Nombre de la funcion: %s  \n", $3); }
-		| RESERV_FUNCION RESERV_DECIMAL d{printf ("Nombre de la funcion: %s  \n", $3); }
+funcion: 	RESERV_FUNCION RESERV_ENTERO c
+		| RESERV_FUNCION RESERV_DECIMAL d
 c:		IDENTIFICADOR '(' parametros ')' '{' cuerpo  retornoentero '}'{$$= $1; }
 d:		IDENTIFICADOR '(' parametros ')' '{' cuerpo  retornodecimal '}'{$$= $1; }
 ;
@@ -108,20 +166,21 @@ contenidocuerpo: declararvariable1 ';'
 parametros:	parametros ',' tipoparametro
 		| tipoparametro
 		| /* cadena vacia*/
-tipoparametro:	RESERV_ENTERO IDENTIFICADOR {printf ("Parametro de tipo entero: %s  \n", $2); }
-		|  RESERV_DECIMAL IDENTIFICADOR {printf ("Parametro de tipo decimal: %s  \n", $2); }
-		|  RESERV_BOOLEANO IDENTIFICADOR {printf ("Parametro de tipo booleano: %s  \n", $2); }
+tipoparametro:	RESERV_ENTERO IDENTIFICADOR {agregarSimbolo ($2, "Parametro", "Entero", "Local", "Parametro de función", 0); }
+		|  RESERV_DECIMAL IDENTIFICADOR {agregarSimboloDecimal ($2, "Parametro", "Decimal", "Local", "Parametro de función", (double)0.0000); }
+		|  RESERV_BOOLEANO IDENTIFICADOR { agregarSimboloCadena ($2, "Parametro", "Booleano", "Local","Parametro de función", "true");}
 ;
 
-retornoentero:	RESERV_RETORNAR expresionentera ';'{printf ("Retorno Entero: %d  \n", $2); }
+retornoentero:	RESERV_RETORNAR expresionentera ';'
 ;
 
-retornodecimal:	RESERV_RETORNAR expresion ';'{printf ("Retorno Decimal: %f  \n", $2); }
+retornodecimal:	RESERV_RETORNAR expresion ';'
 ;
 
 declararvariable1: RESERV_VARIABLE tipovariable
-		| IDENTIFICADOR ':' '=' expresion { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
+		| IDENTIFICADOR ':' '=' expresionentera { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada != NULL) { /* encontrada */
+				 
                                  insertar_diccionario(&diccionario, $1, $4);
                               }
                               else {
@@ -135,7 +194,7 @@ declaracionentero:	declaracionentero ',' asigvalor
 		|	asigvalor
 asigvalor:	IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada == NULL) { /* encontrada */
-				printf ("Creación de la variable: %s \n", $1); 
+				 agregarSimbolo ($1, "Variable", "Entero", "Local", "Variable de función", 0);
                                  insertar_diccionario(&diccionario, $1, 0);
                               }
                               else {
@@ -143,12 +202,12 @@ asigvalor:	IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionario,$
 
                               }
                             }
-		| IDENTIFICADOR ':' '=' expresionentera {printf("Creación de la variable %s con el valor: %d \n",$1, $4);insertar_diccionario(&diccionario, $1, $4);}
+		| IDENTIFICADOR ':' '=' expresionentera {insertar_diccionario(&diccionario, $1, $4);agregarSimbolo ($1, "Variable", "Entero", "Local", "Variable de función", $4);}
 declaraciondecimal:	declaraciondecimal ',' asigvalordec
 		|	asigvalordec
 asigvalordec:	IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada == NULL) { /* encontrada */
-				printf ("Creación de la variable: %s \n", $1); 
+				agregarSimboloDecimal ($1, "Variable", "Entero", "Local", "Variable de función", 0.0000);
                                  insertar_diccionario(&diccionario, $1, 0);
                               }
                               else {
@@ -156,7 +215,7 @@ asigvalordec:	IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionari
 
                               }
                             }
-		| IDENTIFICADOR ':' '=' expresion {printf("Creación de la variable %s con el valor: %f\n",$1, $4);insertar_diccionario(&diccionario, $1, $4);}
+		| IDENTIFICADOR ':' '=' expresion {insertar_diccionario(&diccionario, $1, $4);agregarSimbolo ($1, "Variable", "Decimal", "Local", "Variable de función", (double)$4);}
 ;
 
 
@@ -239,9 +298,9 @@ esfuncion:	IDENTIFICADOR '{' parejecutable k
 		| IDENTIFICADOR '{' k
 parejecutable:	parejecutable ',' tipoparejec
 		| tipoparejec
-tipoparejec:	RESERV_ENT IDENTIFICADOR {printf ("Parametro de tipo entero: %s  \n", $2); }
+tipoparejec:	RESERV_ENT IDENTIFICADOR {printf ("Parametro de tipo entero: %s  \n", $2);  }
 		|  RESERV_DEC IDENTIFICADOR {printf ("Parametro de tipo decimal: %s  \n", $2); }
-		|  RESERV_STR IDENTIFICADOR {printf ("Parametro de tipo cadena: %s  \n", $2); }
+		|  RESERV_STR IDENTIFICADOR {printf ("Parametro de tipo cadena: %s  \n", $2);}
 		|  RESERV_LOG IDENTIFICADOR {printf ("Parametro de tipo booleano: %s  \n", $2); }
 k:		'}' RESERV_INICIO RESERV_FUNCION le m RESERV_FIN RESERV_FUNCION
 m:		RESERV_RET rrr
