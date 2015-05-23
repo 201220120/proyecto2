@@ -5,6 +5,7 @@
 %{  /* Codigo C */
 #include <stdio.h>
 #include<math.h>
+#include <string.h>
 #include "diccionario.h"
 DICCIONARIO diccionario; /* variable global para el diccionario */
   extern FILE *yyin;
@@ -29,9 +30,8 @@ RESERV_ENTONCES RESERV_REPETIR RESERV_HASTA RESERV_PASO RESERV_HACER RESERV_Y RE
 
 %type <valor_real> expresion 
 %type <valor_entero> expresionentera expresion2
-%type <texto> nombre tipo nombrep tipop c  d RESERV_CADENA
-%%    /* Gramatica */
-
+%type <texto> nombre tipo nombrep tipop c  d RESERV_CADENA concatenar er conca
+%%    /* Gramatica */ 
 
 
 lineas:   linea
@@ -68,51 +68,38 @@ nombrep:	RESERV_NOMBRE ':' '"' TIPO_PRINCIPAL '"'{$$=$4; }
 ;
 
 /*ARCHIVO DE TIPO LIBRERIA .FNM*/
-
-libreria: 	libreria funcion
-		| funcion
-funcion:	RESERV_FUNCION RESERV_ENTERO c{printf ("Nombre de la funcion: %s\n", $3); }		
+libreria: libreria funcion
+	| funcion
+	| error ';'{yyerrok;}
+funcion: 	RESERV_FUNCION RESERV_ENTERO c{printf ("Nombre de la funcion: %s  \n", $3); }
 		| RESERV_FUNCION RESERV_DECIMAL d{printf ("Nombre de la funcion: %s  \n", $3); }
 c:		IDENTIFICADOR '(' parametros ')' '{' cuerpo  retornoentero '}'{$$= $1; }
+d:		IDENTIFICADOR '(' parametros ')' '{' cuerpo  retornodecimal '}'{$$= $1; }
 ;
+
+cuerpo:		cuerpo  contenidocuerpo
+		| contenidocuerpo
+		| retornoentero
+		| retornodecimal
+		| /* cadena vacia*/
+contenidocuerpo: declararvariable1 ';'
+		| sentencia
+;
+
 parametros:	parametros ',' tipoparametro
 		| tipoparametro
 		| /* cadena vacia*/
-tipoparametro:	RESERV_ENTERO IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
-                              if (entrada != NULL) { /* encontrada */
-                                 
-                              }
-                              else {
-                                 insertar_diccionario(&diccionario, $2, 0);
-
-                              }
-                            printf ("Parametro de tipo entero: %s  \n", $2); }
-		|  RESERV_DECIMAL IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
-                              if (entrada != NULL) { /* encontrada */
-                                 
-                              }
-                              else {
-                                 insertar_diccionario(&diccionario, $2, 0);
-
-                              }
-                            printf ("Parametro de tipo decimal: %s  \n", $2); }
-		|  RESERV_BOOLEANO IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
-                              if (entrada != NULL) { /* encontrada */
-                                 
-                              }
-                              else {
-                                 insertar_diccionario(&diccionario, $2, 0);
-
-                              }
-                            printf ("Parametro de tipo booleano: %s  \n", $2); }
+tipoparametro:	RESERV_ENTERO IDENTIFICADOR {printf ("Parametro de tipo entero: %s  \n", $2); }
+		|  RESERV_DECIMAL IDENTIFICADOR {printf ("Parametro de tipo decimal: %s  \n", $2); }
+		|  RESERV_BOOLEANO IDENTIFICADOR {printf ("Parametro de tipo booleano: %s  \n", $2); }
 ;
-cuerpo:		cuerpo  contenidocuerpo
-		| contenidocuerpo
-		| /* cadena vacia*/
-contenidocuerpo: declararvariable1 ';'
-		| retornoentero
-		| sentencia
+
+retornoentero:	RESERV_RETORNAR expresionentera ';'{printf ("Retorno Entero: %d  \n", $2); }
 ;
+
+retornodecimal:	RESERV_RETORNAR expresion ';'{printf ("Retorno Decimal: %f  \n", $2); }
+;
+
 declararvariable1: RESERV_VARIABLE tipovariable
 		| IDENTIFICADOR ':' '=' expresion { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada != NULL) { /* encontrada */
@@ -127,81 +114,77 @@ tipovariable:	RESERV_ENTERO declaracionentero
 		| RESERV_DECIMAL declaraciondecimal
 declaracionentero:	declaracionentero ',' asigvalor
 		|	asigvalor
-asigvalor:	IDENTIFICADOR {printf ("Creación de variable: %s \n", $1); insertar_diccionario(&diccionario, $1, 0);} 
-		| IDENTIFICADOR ':' '=' expresionentera {printf("Asignación de valor: %d a la variable %s\n", $4,$1);insertar_diccionario(&diccionario, $1, $4);}
+asigvalor:	IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
+                              if (entrada == NULL) { /* encontrada */
+				printf ("Variable creada: %s \n", $1); 
+                                 insertar_diccionario(&diccionario, $1, 0);
+                              }
+                              else {
+                                 printf("ERROR: variable %s ya definida\n", $1);
+
+                              }
+                            }
+		| IDENTIFICADOR ':' '=' expresionentera {printf("Creación de la variable %s con el valor: %d \n",$1, $4);insertar_diccionario(&diccionario, $1, $4);}
+declaraciondecimal:	declaraciondecimal ',' asigvalordec
+		|	asigvalordec
+asigvalordec:	IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
+                              if (entrada == NULL) { /* encontrada */
+				printf ("Variable creada: %s \n", $1); 
+                                 insertar_diccionario(&diccionario, $1, 0);
+                              }
+                              else {
+                                 printf("ERROR: variable %s ya definida\n", $1);
+
+                              }
+                            }
+		| IDENTIFICADOR ':' '=' expresion {printf("Creación de la variable %s con el valor: %f\n",$1, $4);insertar_diccionario(&diccionario, $1, $4);}
 ;
-expresionentera: CONSTANTE_REAL   { $$ = (int)$1; }
-         	| CONSTANTE_ENTERA { $$ =  $1; }
-         	| IDENTIFICADOR    { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
+
+
+expresion: CONSTANTE_REAL   { $$ = $1; }
+         | CONSTANTE_ENTERA { $$ = (double) $1; }
+         | IDENTIFICADOR    { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada != NULL) { /* encontrada */
                                  $$ = entrada->valor;
                               }
                               else {
-                                 printf("ERROR: variable %s no definida, no se tomará en cuenta.\n", $1);
+                                 printf("ERROR: variable %s no definida\n", $1);
                                  $$ = 0;
                               }
                             }
-		 | '<' '+'  expresionentera expresionentera '>'  { $$ = $3 + $4; }
-		 | '<' '-' expresionentera expresionentera  '>' { $$ = $3 - $4; }
-		 | '<' '*' expresionentera  expresionentera '>'  { $$ = $3 * $4; }
-		 | '<' '/' expresionentera  expresionentera '>'  { $$ = $3 / $4; }
-		 | '<' '^' expresionentera  expresionentera '>'  { $$ = pow($3,$4); }
-		 | '<' '%' expresionentera  expresionentera '>'  { $$ = (int)$3 % (int)$4; }
+         | '<' '+'  expresion expresion '>'  { $$ = $3 + $4; }
+         | '<' '-' expresion expresion  '>' { $$ = $3 - $4; }
+         | '<' '*' expresion  expresion '>'  { $$ = $3 * $4; }
+         | '<' '/' expresion  expresion '>'  { $$ = $3 / $4; }
+         | '<' '^' expresion  expresion '>'  { $$ = pow($3,$4); }
+         | '<' '%' expresion  expresion '>'  { $$ = (int)$3 % (int)$4; }
 ;
-declaraciondecimal:	declaraciondecimal ',' asigvalordec
-		|	asigvalordec
-asigvalordec:	IDENTIFICADOR {printf ("Creación de variable %s \n", $1); insertar_diccionario(&diccionario, $1, 0);} 
-		| IDENTIFICADOR ':' '=' expresion {printf("Asignación de valor: %d a la variable %s\n", $4,$1);insertar_diccionario(&diccionario, $1, $4);}
-;
-expresion: 	CONSTANTE_REAL   { $$ = $1; }
-		 | CONSTANTE_ENTERA { $$ = (double) $1; }
-		 | IDENTIFICADOR    { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
-		                      if (entrada != NULL) { /* encontrada */
-		                         $$ = entrada->valor;
-		                      }
-		                      else {
-		                         printf("ERROR: variable %s no definida, no se tomará en cuenta.\n", $1);
-		                         $$ = 0;
-		                      }
-		                    }
-		 | '<' '+'  expresion expresion '>'  { $$ = $3 + $4; }
-		 | '<' '-' expresion expresion  '>' { $$ = $3 - $4; }
-		 | '<' '*' expresion  expresion '>'  { $$ = $3 * $4; }
-		 | '<' '/' expresion  expresion '>'  { $$ = $3 / $4; }
-		 | '<' '^' expresion  expresion '>'  { $$ = pow($3,$4); }
-		 | '<' '%' expresion  expresion '>'  { $$ = (int)$3 % (int)$4; }
-;
-
-
-
-
-
-/**/
-
-d:		IDENTIFICADOR '(' parametros ')' '{' cuerpo  retornodecimal '}'{$$= $1; }
-		| IDENTIFICADOR '(' ')' '{' cuerpo retornodecimal '}'
-;
-
-retornoentero:	RESERV_RETORNAR expresionentera ';'{printf ("Retorno Entero: %d  \n", $2); }
-;
-
-retornodecimal:	RESERV_RETORNAR expresion ';'{printf ("Retorno Decimal: %f  \n", $2); }
+expresionentera: CONSTANTE_REAL   { $$ = (int)$1; }
+         | CONSTANTE_ENTERA { $$ =  $1; }
+         | IDENTIFICADOR    { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
+                              if (entrada != NULL) { /* encontrada */
+                                 $$ = entrada->valor;
+                              }
+                              else {
+                                 printf("ERROR: variable %s no definida\n", $1);
+                                 $$ = 0;
+                              }
+                            }
+         | '<' '+'  expresionentera expresionentera '>'  { $$ = $3 + $4; }
+         | '<' '-' expresionentera expresionentera  '>' { $$ = $3 - $4; }
+         | '<' '*' expresionentera  expresionentera '>'  { $$ = $3 * $4; }
+         | '<' '/' expresionentera  expresionentera '>'  { $$ = $3 / $4; }
+         | '<' '^' expresionentera  expresionentera '>'  { $$ = pow($3,$4); }
+         | '<' '%' expresionentera  expresionentera '>'  { $$ = (int)$3 % (int)$4; }
 ;
 
 sentencia: 	si
 		| mientras
 		| para
-	
-;
 mientras:	RESERV_MIENTRAS '(' x
 x:		comparacion y
 y:		')' '{' cuerpo '}'
-;
-
 para:		RESERV_PARA '(' declararvariable1 ';' comparacion ';' asigvalor  ')' '{' cuerpo '}'
-;
-
-
 si:		RESERV_SI '(' sh 
 sh:		comparacion shh 
 shh:		')' '{' cuerpo '}' h
@@ -211,13 +194,9 @@ h:		RESERV_SINOSI '('comparacion ')' '{' cuerpo'}' i
 i:		h
 		|z
 z:		 RESERV_SINO '{' cuerpo '}'
-		
-;
-
+comparacion : '<' expresionentera comparador b '>'
 b  : expresionentera
-  | CONSTANTE_ENTERA
-  | CONSTANTE_REAL
-  ;
+  | expresion
 comparador:	RESERV_MENOR
 	|	RESERV_MAYOR 
 	|	RESERV_MAYORIGUAL
@@ -227,43 +206,31 @@ comparador:	RESERV_MENOR
 ;
 
 
-
-
-
+/*ARCHIVO DE TIPO PAL*/
 
 
 ejecutable:	ejecutable ejecucion
 		| ejecucion
 ;
-
 ejecucion:	esfuncion
 		| esincuir
+esincuir:	RESERV_INCLUIR '"' TIPO_ARCHIVO '"' RESERV_ALIAS IDENTIFICADOR {/*agregar*/}
 ;
-
 esfuncion:	IDENTIFICADOR '{' parejecutable k
 		| IDENTIFICADOR '{' k
+parejecutable:	parejecutable ',' tipoparejec
+		| tipoparejec
+tipoparejec:	RESERV_ENT IDENTIFICADOR {printf ("Parametro de tipo entero: %s  \n", $2); }
+		|  RESERV_DEC IDENTIFICADOR {printf ("Parametro de tipo decimal: %s  \n", $2); }
+		|  RESERV_STR IDENTIFICADOR {printf ("Parametro de tipo cadena: %s  \n", $2); }
+		|  RESERV_LOG IDENTIFICADOR {printf ("Parametro de tipo booleano: %s  \n", $2); }
 k:		'}' RESERV_INICIO RESERV_FUNCION le m RESERV_FIN RESERV_FUNCION
- 
-;
-m:		RESERV_RET retentero
-		| RESERV_RET retdecimal
-		| RESERV_RET retcadena
-		| RESERV_RET retlog
-retentero:	
-retdecimal:
-retcadena:
-retlog:
+m:		RESERV_RET rrr
+rrr:		expresion2
 ;
 le:		le contfuncion 
 		| contfuncion
 		|/* variable vacia*/
-;
-
-
-imprimir:	RESERV_IMPRIMIR '('  concatenar  ')'
-;
-graficar:	RESERV_GRAFICAR '(' IDENTIFICADOR ')'
-;
 contfuncion:	declararvariable2
 		| asigvalor
 		| sentenciaejec
@@ -271,54 +238,20 @@ contfuncion:	declararvariable2
 		| imprimir
 		| graficar
 ;
-invocarfuncion: 	funcioninterna
-		|	funcionexterna
-funcioninterna:		IDENTIFICADOR '(' parametrofuncion ')'	
-		|	IDENTIFICADOR '(' ')'
-parametrofuncion:	parametrofuncion ',' parametrovalor
-		|	parametrovalor
-parametrovalor:		IDENTIFICADOR{printf ("Parametro ENVIADO: %s  \n", $1); }
-funcionexterna:		IDENTIFICADOR '.' IDENTIFICADOR '(' parametrofuncion ')'
-		|	IDENTIFICADOR '.' IDENTIFICADOR '(' ')'
-;		
-
-
-/*nombre_alias.nombre_función(parámetro_1, ..., parámetro_N)*/
-sentenciaejec: 	siejec
-		| repetir
-		| para
-;
-
-siejec:		RESERV_SI she 
-she:		comparacionejec RESERV_ENTONCES shhe 
-shhe:		 le  he
-		| le wwe
-he:		RESERV_SINOSI comparacionejec RESERV_ENTONCES le ie
-ie:		he
-		|ze
-ze:		 RESERV_SINO   RESERV_ENTONCES le wwe
-wwe:		 RESERV_FIN RESERV_SI
-		
-;
-
-repetir:	RESERV_REPETIR le  RESERV_HASTA comparacionejec
-;
-para:		RESERV_PARA IDENTIFICADOR RESERV_CON expresion2 RESERV_HASTA expresion2 RESERV_Y RESERV_PASO expresion2 RESERV_HACER ly
-ly:		le lz
-		| lz
-lz:		RESERV_FIN RESERV_PARA
-;
 
 declararvariable2: tipovariable2 RESERV_COMO tipvariable
-		
-; 
 tipovariable2:	tipovariable2 ',' asigidentificador 
 		|	asigidentificador  
+asigidentificador: IDENTIFICADOR  { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
+                              if (entrada == NULL) { /* encontrada */
+				printf ("Variable creada: %s \n", $1); 
+                                 insertar_diccionario(&diccionario, $1, 0);
+                              }
+                              else {
+                                 printf("ERROR: variable %s ya definida\n", $1);
 
-;
-asigidentificador: IDENTIFICADOR  {printf ("Variable %s \n", $1); insertar_diccionario(&diccionario, $1, 0);} 
-;
-
+                              }
+                            }
 tipvariable:	RESERV_ENT
 		| RESERV_DEC
 		| RESERV_LOG
@@ -354,15 +287,60 @@ expresion2:	CONSTANTE_REAL   { $$ = (int) $1; }
 	 | '(' expresion2 ')'   { $$ = (int) $2; }
 ;
 
-concatenar: concatenar '?' er
-	|	er 
-er:	RESERV_CADENA {printf ("Texto a imprimir: %s  \n", $1); }
+invocarfuncion: 	funcioninterna
+		|	funcionexterna
+funcioninterna:		IDENTIFICADOR '(' parametrofuncion ')'	
+		|	IDENTIFICADOR '(' ')'
+parametrofuncion:	parametrofuncion ',' parametrovalor
+		|	parametrovalor
+parametrovalor:		IDENTIFICADOR{printf ("Parametro ENVIADO: %s  \n", $1); }
+funcionexterna:		IDENTIFICADOR '.' IDENTIFICADOR '(' parametrofuncion ')'
+		|	IDENTIFICADOR '.' IDENTIFICADOR '(' ')'
+;	
+imprimir:	RESERV_IMPRIMIR '('  conca  ')'
+conca:		concatenar {printf ("Texto a imprimir: %s  \n", $1);}
+concatenar: concatenar '?' er {$$=strcat($1,$3); }
+	|	er {$$=$1;}
+er:	RESERV_CADENA {$$=$1;}
+	| expresion2{$$=$1;}
 ;
+
+
+graficar:	RESERV_GRAFICAR '(' IDENTIFICADOR ')'
+;
+
+
+sentenciaejec: 	siejec
+		| repetir
+		| para
+;
+
+siejec:		RESERV_SI she 
+she:		comparacionejec RESERV_ENTONCES shhe 
+shhe:		 le  he
+		| le wwe
+he:		RESERV_SINOSI comparacionejec RESERV_ENTONCES le ie
+ie:		he
+		|ze
+ze:		 RESERV_SINO   RESERV_ENTONCES le wwe
+wwe:		 RESERV_FIN RESERV_SI
+		
+;
+
+repetir:	RESERV_REPETIR le  RESERV_HASTA comparacionejec
+;
+para:		RESERV_PARA IDENTIFICADOR RESERV_CON expresion2 RESERV_HASTA expresion2 RESERV_Y RESERV_PASO expresion2 RESERV_HACER ly
+ly:		le lz
+		| lz
+lz:		RESERV_FIN RESERV_PARA
+;
+
+
+
+
 
 
 comparacionejec : expresion2 comparadorejec expresion2 
-;
-
 comparadorejec:	'<'
 	|	'>'
 	|	'>' '='
@@ -370,19 +348,6 @@ comparadorejec:	'<'
 	|	':'
 	|	'¬' ':'
 ;
-
-esincuir:	RESERV_INCLUIR '"' TIPO_ARCHIVO '"' RESERV_ALIAS IDENTIFICADOR
-;
-
-parejecutable:	parejecutable ',' tipoparejec
-		| tipoparejec;
-tipoparejec:	RESERV_ENT IDENTIFICADOR {printf ("Parametro de tipo entero: %s  \n", $2); }
-		|  RESERV_DEC IDENTIFICADOR {printf ("Parametro de tipo decimal: %s  \n", $2); }
-		|  RESERV_STR IDENTIFICADOR {printf ("Parametro de tipo cadena: %s  \n", $2); }
-		|  RESERV_LOG IDENTIFICADOR {printf ("Parametro de tipo booleano: %s  \n", $2); }
-
-;
-
 
 
 %%
