@@ -37,7 +37,7 @@ funcion entero suma_enteros (entero var1, entero var2, decimal var3, booleano va
 
 }
 
-funcion decimal resta_enteros ( )
+funcion decimal resta_enteros ( 
 {
 	variable entero resultado;
 

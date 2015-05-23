@@ -89,7 +89,9 @@ CADENA		 "\'"({LETRA}|{DIGITO}|(" "))*"\'"
 %%
 int main(int argc,char **argv)
 {
-
+FILE *pf;
+pf = fopen("errLexico.txt","w"); 
+fclose(pf);
 if (argc>1)
 	yyin=fopen(argv[1],"r");
   else

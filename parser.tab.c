@@ -1591,7 +1591,7 @@ yyreduce:
 
   case 6:
 #line 46 "parser.y" /* yacc.c:1646  */
-    {  char* nom = "Error Sintactico"; FILE* archivo= NULL;archivo = fopen("errSintactico.txt","a+");fputs(nom,archivo);fputs(",",archivo);fclose(archivo); yyerrok;}
+    {yyerrok;}
 #line 1596 "parser.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2238,6 +2238,6 @@ fclose(pf3);
     
 }
 
-yyerror (char *s) { printf ("%s\n", s);  }
+yyerror (char *s) { printf ("Error de tipo: %s\n", s);  char* nom = "ErrorSintactico"; FILE* archivo= NULL;archivo = fopen("errSintactico.txt","a+");char linea[3];sprintf(linea, "%d", 0);fputs(linea,archivo);fputs(",",archivo);char columna[3];sprintf(columna, "%d", 0);fputs(columna,archivo);fputs(",",archivo);fputs(nom,archivo);fputs(",",archivo);fclose(archivo);   }
 
 int yywrap()  { return 1; }
