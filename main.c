@@ -10,9 +10,100 @@
 
 #include <string.h>
 
+typedef struct ElementoLista {
+    char *nom;
+    char* tipoSimbolo;
+    char *tipoDato;
+    char*ambito;
+    char* descripcion;
+    int valor;
+    struct ElementoLista *siguiente;
+} Elemento;
+
+typedef struct ListaIdentificar {
+    Elemento *inicio;
+    Elemento *fin;
+    int tamano;
+} Lista;
+/*inicializa la lista*/
+void incializacion(Lista *lista);
+/*En caso de error devuelve -1 sino 0*/
+int InsercionEnListaVacia(Lista *lista, char *nom, char* tipoSimbolo, char *tipoDato, char*ambito, char* descripcion, int valor);
+
+/*insertar en fin de la lista*/
+int InsercionFinLista(Lista *lista, Elemento *actual, char *nom, char* tipoSimbolo, char *tipoDato, char*ambito, char* descripcion, int valor);
+/*insertar en X posicion de la lista*/
+void visualizacion(Lista *lista);
+
+void incializacion(Lista *lista) {
+    lista->inicio = NULL;
+    lista->fin = NULL;
+    lista->tamano = 0;
+}
+
+int InsercionEnListaVacia(Lista *lista, char *nom, char* tipoSimbolo, char *tipoDato, char*ambito, char* descripcion, int valor) {
+
+    Elemento *nuevo_elemento;
+
+    if ((nuevo_elemento = (Elemento *) malloc(sizeof (Elemento))) == NULL)
+        return -1;
+    nuevo_elemento->ambito = (char *) malloc(50 * sizeof (char));
+    nuevo_elemento->descripcion = (char *) malloc(50 * sizeof (char));
+    nuevo_elemento->nom = (char *) malloc(50 * sizeof (char));
+    nuevo_elemento->tipoDato = (char *) malloc(50 * sizeof (char));
+    nuevo_elemento->tipoSimbolo = (char *) malloc(50 * sizeof (char));
+    strcpy(nuevo_elemento->ambito, ambito);
+    strcpy(nuevo_elemento->descripcion, descripcion);
+    strcpy(nuevo_elemento->nom, nom);
+    strcpy(nuevo_elemento->tipoDato, tipoDato);
+    strcpy(nuevo_elemento->tipoSimbolo, tipoSimbolo);
+    nuevo_elemento->valor = valor;
+
+    nuevo_elemento->siguiente = NULL;
+    lista->inicio = nuevo_elemento;
+    lista->fin = nuevo_elemento;
+    lista->tamano++;
+    return 0;
+}
+
+int InsercionFinLista(Lista *lista, Elemento *actual, char *nom, char* tipoSimbolo, char *tipoDato, char*ambito, char* descripcion, int valor) {
+    Elemento *nuevo_elemento;
+    if ((nuevo_elemento = (Elemento *) malloc(sizeof (Elemento))) == NULL)
+        return -1;
+    nuevo_elemento->ambito = (char *) malloc(50 * sizeof (char));
+    nuevo_elemento->descripcion = (char *) malloc(50 * sizeof (char));
+    nuevo_elemento->nom = (char *) malloc(50 * sizeof (char));
+    nuevo_elemento->tipoDato = (char *) malloc(50 * sizeof (char));
+    nuevo_elemento->tipoSimbolo = (char *) malloc(50 * sizeof (char));
+    strcpy(nuevo_elemento->ambito, ambito);
+    strcpy(nuevo_elemento->descripcion, descripcion);
+    strcpy(nuevo_elemento->nom, nom);
+    strcpy(nuevo_elemento->tipoDato, tipoDato);
+    strcpy(nuevo_elemento->tipoSimbolo, tipoSimbolo);
+    nuevo_elemento->valor = valor;
+
+    actual->siguiente = nuevo_elemento;
+    nuevo_elemento->siguiente = NULL;
+
+    lista->fin = nuevo_elemento;
+    lista->tamano++;
+    return 0;
+}
+
+void visualizacion(Lista *lista) {
+    Elemento *actual;
+    actual = lista->inicio;
+    while (actual != NULL) {
+        printf("%p - %s\n", actual, actual->valor);
+        actual = actual->siguiente;
+    }
+}
+
 /*
  * 
  */
+
+
 
 void generarLexico(FILE *errLex) {
     errLex = fopen("errLexico.txt", "r");
@@ -203,9 +294,45 @@ int generarSintactico(char* s2, char* nom) {
             ptrToken = strtok(NULL, ",");
         }
 
+        fclose(archivo3);
+
     }
+    fclose(arc1);
+    FILE *arc2;
+    arc2 = fopen("archivo2.txt", "r");
+    char lins[800];
+    char *pToken;
+    char *nombrer;
+    while (fscanf(arc2, "%s", lins) == 1) {
+        pToken = strtok(lins, ",");
+
+        while (pToken != NULL) {
+            nombre = pToken;
+            printf("\n------Ejecución del archivo principal:%s------\n", nombre);
+            generarAnalisisPrincipal(nombre);
+            pToken = strtok(NULL, ",");
+        }
+
+    }
+    fclose(arc2);
+
     fclose(errLex);
     return 1;
+}
+
+int generarAnalisisPrincipal(char* pToken) {
+    char* tmp2 = "Se asigna la memoria necesaria para el funcionamiento del archivo";
+    char TInOrden[900];
+    char* s1 = malloc(sizeof (char)*(2 * strlen(TInOrden) + strlen(tmp2) + 10));
+    system("flex scanner.l && bison -d parserp.y && cc lex.yy.c parserp.tab.c -o analizadorP -lfl -lm diccionario.c");
+    char* tmp1 = "./analizadorP ";
+    printf("\n\n\t.:OPERACION DEL ARCHIVO: %s:.\n", pToken);
+    strcpy(s1, tmp1);
+    strcat(s1, pToken);
+    system(s1);
+    
+    
+
 }
 
 int generarAnalisis(char* ptrToken) {
@@ -289,13 +416,15 @@ int main(int argc, char* argv[]) {
 
     }
 
+            
+    if (remove("analizadorP") == -1);
     if (remove("scanner") == -1);
     if (remove("archivo1.txt") == -1);
     if (remove("analizador") == -1);
     if (remove("errLexico.txt") == -1);
     if (remove("errSintactico.txt") == -1);
     if (remove("archivo2.txt") == -1);
-    //if (remove("archivo3.txt") == -1);
+    if (remove("archivo3.txt") == -1);
     return 0;
 }
 

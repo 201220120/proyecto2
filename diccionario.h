@@ -13,9 +13,13 @@
 #define NO 0
 
 #define MAX_DICCIONARIO 1000
-
+    
 struct entrada {
 	char * nombre;
+	char* tipoSimbolo;
+    	char *tipoDato;
+    	char*ambito;
+    	char* descripcion;
 	double valor;
 };
 
@@ -33,7 +37,7 @@ typedef struct diccionario DICCIONARIO;
 
 void inicializar_diccionario(DICCIONARIO *d);
 void liberar_diccionario(DICCIONARIO *d);
-void insertar_diccionario(DICCIONARIO *d, char * nombre, double valor);
+void insertar_diccionario(DICCIONARIO *d, char * nombre,char* tipoSimbolo,char *tipoDato,char*ambito,char* descripcion, double valor);
 ENTRADA * buscar_diccionario(DICCIONARIO *d, char * nombre);
 void eliminar_diccionario(DICCIONARIO *d, char * nombre);
 void volcar_diccionario(DICCIONARIO *d);
