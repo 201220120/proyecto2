@@ -8,11 +8,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include "diccionario.h"
+#include "funciones.h"
 DICCIONARIO diccionario; /* variable global para el diccionario */
+BIBLIOTECA2 biblioteca; /* variable global para el diccionario */
   extern FILE *yyin;
+FILE *grafica;
 char *replace_char (char *str, char find, char *replace) {
     char *ret=str;
     char *wk, *s;
+
 
     wk = s = strdup(str);
 
@@ -87,14 +91,14 @@ void agregarSimboloCadena (char *nom, char* tipoSimbolo, char *tipoDato, char*am
 	fclose(archivo);  
 }
 
-void imprimirWhile(char*tipo, char* contenido, int condicion,int aumento)
+void imprimirWhile( char* contenido, int condicion,int aumento)
 {
 int condi = 0;
 while(condi<condicion)
     {
     
     printf ("%s\n", contenido);
-condi= condi+aumento;
+	condi= condi+aumento;
     }
 }
 %}
@@ -111,14 +115,14 @@ RESERV_INCLUIR RESERV_ALIAS RESERV_ENT RESERV_DEC RESERV_LOG RESERV_STR RESERV_V
 RESERV_ENTONCES RESERV_REPETIR RESERV_HASTA RESERV_PASO RESERV_HACER RESERV_Y RESERV_IMPRIMIR RESERV_GRAFICAR  RESERV_CADENA
 %token <valor_real> CONSTANTE_REAL
 %token <valor_entero> CONSTANTE_ENTERA
-%token <texto> IDENTIFICADOR TIPO_ARCHIVO TIPO_PRINCIPAL RESERV_TIPO RESERV_FNM RESERV_PAL  RESERV_ENTERO RESERV_DECIMAL RESERV_BOOLEANO
+%token <texto> IDENTIFICADOR TIPO_ARCHIVO TIPO_PRINCIPAL RESERV_TIPO RESERV_FNM RESERV_PAL  RESERV_ENTERO RESERV_DECIMAL RESERV_BOOLEANO imprimirimprimir
 
 %left '-' '+'
 %left '*' '/' '%'
 
 %type <valor_real> expresion 
-%type <valor_entero> expresionentera expresion2
-%type <texto> nombre tipo nombrep tipop c  d RESERV_CADENA concatenar er conca
+%type <valor_entero> expresionentera expresion2 comparacionejec
+%type <texto> nombre tipo nombrep tipop c  d RESERV_CADENA concatenar er conca  imprimir  ww
 %%    /* Gramatica */ 
 
 
@@ -310,8 +314,24 @@ esincuir:	RESERV_INCLUIR '"' TIPO_ARCHIVO '"' RESERV_ALIAS IDENTIFICADOR {/*agre
 
 esprincipal:	RESERV_PRINCIPAL '{' k
 ;
-esfuncion:	IDENTIFICADOR '{' parejecutable k
-		| IDENTIFICADOR '{' k
+esfuncion:	IDENTIFICADOR '{' parejecutable k { ENTRADA2 * entrada = buscar_diccionario2(&biblioteca,$1);
+                              if (entrada == NULL) { /* encontrada */
+				grafica = fopen("grafica.txt","r"); 
+					char lins[2000];
+					fscanf(grafica, "%s", lins);
+						
+					printf("Función: %s\n", $1);
+					insertar_diccionario2(&biblioteca,$1,lins);			
+ 					fclose(grafica);
+									        
+					
+				}
+                                 
+                              
+                              else {
+                                
+                              }
+                            }
 parejecutable:	parejecutable ',' tipoparejec
 		| tipoparejec
 		| /* cadena vacia*/
@@ -344,7 +364,10 @@ tipovariable2:	tipovariable2 ',' asigidentificador
 asigidentificador: IDENTIFICADOR  { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada == NULL) { /* encontrada */
 				
-                                 insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable de funcion",0);
+                                insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable de funcion",0);
+				grafica = fopen("grafica.txt","a+");
+				char* nom = $1;fputs("Creacion_variable_",grafica);fputs(nom,grafica);fputs(",",grafica);
+				fclose(grafica);
                               }
                               else {
                                  printf("ERROR: variable %s ya definida\n", $1);
@@ -352,7 +375,6 @@ asigidentificador: IDENTIFICADOR  { ENTRADA * entrada = buscar_diccionario(&dicc
                               }
                             }
 
-;
 tipvariable:	RESERV_ENT
 		| RESERV_DEC
 		| RESERV_LOG
@@ -362,6 +384,9 @@ tipvariable:	RESERV_ENT
 asigvalor:		IDENTIFICADOR RESERV_CON expresion2{ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada != NULL) { /* encontrada */
                                  insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable de funcion", $3);
+				grafica = fopen("grafica.txt","a+");
+				char* nom = $1;fputs("Asignación_de_valor_para_",grafica);fputs(nom,grafica);fputs(",",grafica);
+				fclose(grafica);
                               }
                               else {
                                  printf("ERROR: variable %s no definida\n", $1);
@@ -399,8 +424,10 @@ parametrovalor:		expresion2{ }
 funcionexterna:		IDENTIFICADOR '.' IDENTIFICADOR '(' parametrofuncion ')'
 		|	IDENTIFICADOR '.' IDENTIFICADOR '(' ')'
 ;	
-imprimir:	RESERV_IMPRIMIR '('  conca  ')'
-conca:		concatenar {printf ("Texto a imprimir: %s  \n", $1);}
+imprimir:	RESERV_IMPRIMIR '('  conca  ')' {$$=$3;grafica = fopen("grafica.txt","a+");
+				char* nom = $3;fputs("funcion_imprimir",grafica);fputs(",",grafica);
+				fclose(grafica);}
+conca:		concatenar {printf ("Texto a imprimir: %s  \n", $1);$$=$1;}
 concatenar: concatenar '?' er {strcpy($$,$1);strcat($$,$3); } 
 
 	|	er {$$=$1;}
@@ -409,7 +436,72 @@ er:	RESERV_CADENA {char *name = malloc(20);sprintf(name, "%s", $1);name = replac
 ;
 
 
-graficar:	RESERV_GRAFICAR '(' IDENTIFICADOR ')'
+graficar:	RESERV_GRAFICAR '(' IDENTIFICADOR ')'{printf("\n\t\tFunción a graficar: %s\n",$3);
+				ENTRADA2 * entrada = buscar_diccionario2(&biblioteca,$3);
+                        	if (entrada != NULL) 
+				{ /* encontrada */
+				    char lineas[20000];
+				    char *ptrToken;
+				    //printf("\n\t\tArchivo recivido: %s\n", entrada->contenido);
+				    grafica = fopen("grafica.dot","w");fputs("digraph grafica {",grafica);fputs("node [shape=box,style=filled,color=lightgrey];Inicio_",grafica);fputs($3,grafica);fputs(" -> ",grafica);
+				    	ptrToken = strtok(entrada->valor, ",");
+					
+					while (ptrToken != NULL)
+					{
+					    //printf("\n\t\t%s\n", ptrToken);
+					    if(ptrToken[0]=='S')
+						{
+							
+					       fputs(ptrToken,grafica);
+						fputs(ptrToken,grafica);
+						fputs("-> SI",grafica);
+						fputs(ptrToken,grafica);
+						fputs("-> NO",grafica);
+					    ptrToken = strtok(NULL, ",");
+						fputs("SI -> ",grafica);
+						fputs(ptrToken,grafica);
+						fputs("NO -> ",grafica);
+
+					       fputs(ptrToken,grafica);
+					    fputs("\n ",grafica);
+					    fputs(ptrToken,grafica);
+					    fputs(" -> ",grafica);
+						
+
+						}else if(ptrToken[0]=='R')
+						{
+						fputs(ptrToken,grafica);
+						fputs("->",grafica);
+						fputs(ptrToken,grafica);fputs("\n ",grafica);
+					    fputs(ptrToken,grafica);
+					    fputs(" -> ",grafica);
+					    ptrToken = strtok(NULL, ",");
+						}else{
+						
+						fputs(ptrToken,grafica);fputs("\n ",grafica);
+					    fputs(ptrToken,grafica);
+					    fputs(" -> ",grafica);
+					    ptrToken = strtok(NULL, ",");
+					}
+
+					    
+					
+					    
+					}
+				    fputs("Fin }",grafica);
+                                    fclose(grafica);
+					
+				    system("dot -Tpng grafica.dot -o grafica.png");
+				    if (remove("grafica.dot") == -1);
+				    if (remove("grafica.txt") == -1);
+				    system("xdg-open grafica.png");
+				}
+                              	else 
+				{
+                                	 printf("\tFunción no encontrada.\n", $3);
+				}
+				
+			}
 ;
 
 
@@ -418,7 +510,7 @@ sentenciaejec: 	siejec
 		| para
 ;
 
-siejec:		RESERV_SI she 
+siejec:		RESERV_SI she {grafica = fopen("grafica.txt","a+");fputs("SI_SENTENCIA",grafica);fputs(",",grafica);fclose(grafica);}
 she:		comparacionejec RESERV_ENTONCES shhe 
 shhe:		 le  he
 		| le wwe
@@ -429,17 +521,28 @@ ze:		 RESERV_SINO   RESERV_ENTONCES le wwe
 wwe:		 RESERV_FIN RESERV_SI
 		
 ;
-
-repetir:	RESERV_REPETIR le  RESERV_HASTA comparacionejec 
+ww:		imprimir{$$=$1;}
 ;
-para:		RESERV_PARA IDENTIFICADOR RESERV_CON expresion2 RESERV_HASTA expresion2 RESERV_Y RESERV_PASO expresion2 RESERV_HACER ly
+re:		re e 
+		| e
+		|/* variable vacia*/
+e:		declararvariable2
+		| asigvalor
+		| sentenciaejec
+		| invocarfuncion
+;
+repetir:	RESERV_REPETIR ww RESERV_HASTA comparacionejec {imprimirWhile( $2, $4,1);grafica = fopen("grafica.txt","a+");fputs("REPETIR_SENTENCIA",grafica);fputs(",",grafica);
+fclose(grafica);}
+		| RESERV_REPETIR re RESERV_HASTA comparacionejec {}
+;
+para:		RESERV_PARA IDENTIFICADOR RESERV_CON expresion2 RESERV_HASTA expresion2 RESERV_Y RESERV_PASO expresion2 RESERV_HACER ly {grafica = fopen("grafica.txt","a+");fputs("PARA_SENTENCIA",grafica);fputs(",",grafica);fclose(grafica);}
 ly:		le lz
 		| lz
 lz:		RESERV_FIN RESERV_PARA
 ;
 
 comparacionejec : expresion2 comparadorejec expresion2 
-		| expresion2
+		| expresion2{$$=$1;}
 comparadorejec:	'<'
 	|	'>'
 	|	'>' '='
@@ -459,9 +562,12 @@ fclose(pf3);
 	yyin=fopen(argv[1],"rt");
     else
 	yyin=stdin;
-    inicializar_diccionario(&diccionario);
+    inicializar_diccionariosss(&diccionario);
+    inicializar_diccionario2(&biblioteca);
     yyparse();
-	//volcar_diccionario(&diccionario);
+//imprimir_biblioteca(&biblioteca);
+	//volcar_diccionario2(&biblioteca);
+liberar_diccionario2(&biblioteca);
     
 }
 

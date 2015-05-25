@@ -89,6 +89,12 @@ void agregarSimboloCadena (char *nom, char* tipoSimbolo, char *tipoDato, char*am
 	fputs(",",archivo);
 	fclose(archivo);  
 }
+void agregarErrorSemantico(char* nombre,int leneno,int columno,char* tipo)
+{
+ FILE* archivo= NULL;archivo = fopen("semantico.txt","a+");char linea[3];sprintf(linea, "%d", leneno);fputs(linea,archivo);fputs(",",archivo);char columna[3];sprintf(columna, "%d", columno);fputs(columna,archivo);fputs(",",archivo);fputs(nombre,archivo);fputs(",",archivo);fputs(tipo,archivo);fputs(",",archivo);fclose(archivo); 
+
+}
+
 %}
 
 /* Declaraciones de BISON */
@@ -169,9 +175,9 @@ contenidocuerpo: declararvariable1 ';'
 parametros:	parametros ',' tipoparametro
 		| tipoparametro
 		| /* cadena vacia*/
-tipoparametro:	RESERV_ENTERO IDENTIFICADOR {insertar_diccionario(&diccionario, $2,"Variable","Entero","Externas","Parametro de funcion", 0);agregarSimbolo ($2, "Parametro", "Entero", "Local", "Parametro de función", 0); }
-		|  RESERV_DECIMAL IDENTIFICADOR {insertar_diccionario(&diccionario, $2,"Variable","Decimal","Externas","Parametro de funcion", 0);agregarSimboloDecimal ($2, "Parametro", "Decimal", "Local", "Parametro de función", (double)0.0000); }
-		|  RESERV_BOOLEANO IDENTIFICADOR { insertar_diccionario(&diccionario, $2,"Variable","Entero","Externas","Parametro de funcion", 0);agregarSimboloCadena ($2, "Parametro", "Booleano", "Local","Parametro de función", "true");}
+tipoparametro:	RESERV_ENTERO IDENTIFICADOR {insertar_diccionario(&diccionario, $2,"Variable","Entero","Externas","Parametro_de_funcion", 0);agregarSimbolo ($2, "Parametro", "Entero", "Local", "Parametro de función", 0); }
+		|  RESERV_DECIMAL IDENTIFICADOR {insertar_diccionario(&diccionario, $2,"Variable","Decimal","Externas","Parametro_de_funcion", 0);agregarSimboloDecimal ($2, "Parametro", "Decimal", "Local", "Parametro de función", (double)0.0000); }
+		|  RESERV_BOOLEANO IDENTIFICADOR { insertar_diccionario(&diccionario, $2,"Variable","Entero","Externas","Parametro_de_funcion", 0);agregarSimboloCadena ($2, "Parametro", "Booleano", "Local","Parametro de función", "true");}
 ;
 
 retornoentero:	RESERV_RETORNAR expresionentera ';'
@@ -184,11 +190,15 @@ declararvariable1: RESERV_VARIABLE tipovariable
 		| IDENTIFICADOR ':' '=' expresionentera { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada != NULL) { /* encontrada */
 				 
-                                 insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable de funcion", $4);
+                                 insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable_de_funcion", $4);
 
                               }
                               else {
                                  printf("ERROR: variable %s no definida\n", $1);
+				char* nombre = (char *) malloc (strlen($1) + 30);
+				sprintf(nombre, "variable_%s_no_definida", $1);
+                        	
+				agregarErrorSemantico(nombre,yylineno,yycolumno,"Libreria");
 
                               }
                             }
@@ -199,27 +209,35 @@ declaracionentero:	declaracionentero ',' asigvalor
 asigvalor:	IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada == NULL) { /* encontrada */
 				 agregarSimbolo ($1, "Variable", "Entero", "Local", "Variable de función", 0);
-                                 insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable de funcion", 0);
+                                 insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable_de_funcion", 0);
                               }
                               else {
                                  printf("ERROR: variable %s ya definida\n", $1);
+				char* nombre = (char *) malloc (strlen($1) + 30);
+				sprintf(nombre, "variable_%s_ya_definida", $1);
+                        	
+				agregarErrorSemantico(nombre,yylineno,yycolumno,"Libreria");
 
                               }
                             }
-		| IDENTIFICADOR ':' '=' expresionentera {insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable de funcion", $4);agregarSimbolo ($1, "Variable", "Entero", "Local", "Variable de función", $4);}
+		| IDENTIFICADOR ':' '=' expresionentera {insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable_de_funcion", $4);agregarSimbolo ($1, "Variable", "Entero", "Local", "Variable de función", $4);}
 declaraciondecimal:	declaraciondecimal ',' asigvalordec
 		|	asigvalordec
 asigvalordec:	IDENTIFICADOR { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada == NULL) { /* encontrada */
-				agregarSimboloDecimal ($1, "Variable", "Entero", "Local", "Variable de función", 0.0000);
-                                 insertar_diccionario(&diccionario, $1,"Variable","Decimal","Local","Variable de funcion", 0);
+				agregarSimboloDecimal ($1, "Variable", "Entero", "Local", "Variable_de_función", 0.0000);
+                                 insertar_diccionario(&diccionario, $1,"Variable","Decimal","Local","Variable_de_funcion", 0);
                               }
                               else {
                                  printf("ERROR: variable %s ya definida\n", $1);
+				char* nombre = (char *) malloc (strlen($1) + 30);
+				sprintf(nombre, "variable_%s_ya_definida", $1);
+                        	
+				agregarErrorSemantico(nombre,yylineno,yycolumno,"Libreria");
 
                               }
                             }
-		| IDENTIFICADOR ':' '=' expresion {insertar_diccionario(&diccionario, $1,"Variable","Decimal","Local","Variable de funcion", $4);agregarSimbolo ($1, "Variable", "Decimal", "Local", "Variable de función", (double)$4);}
+		| IDENTIFICADOR ':' '=' expresion {insertar_diccionario(&diccionario, $1,"Variable","Decimal","Local","Variable_de_funcion", $4);agregarSimbolo ($1, "Variable", "Decimal", "Local", "Variable _de_función", (double)$4);}
 ;
 
 
@@ -231,6 +249,10 @@ expresion: CONSTANTE_REAL   { $$ = $1; }
                               }
                               else {
                                  printf("ERROR: variable %s no definida\n", $1);
+				char* nombre = (char *) malloc (strlen($1) + 30);
+				sprintf(nombre, "variable_%s_no_definida", $1);
+                        	
+				agregarErrorSemantico(nombre,yylineno,yycolumno,"Libreria");
                                  $$ = 0;
                               }
                             }
@@ -249,6 +271,10 @@ expresionentera: CONSTANTE_REAL   { $$ = (int)$1; }
                               }
                               else {
                                  printf("ERROR: variable %s no definida\n", $1);
+				char* nombre = (char *) malloc (strlen($1) + 30);
+				sprintf(nombre, "variable_%s_no_definida", $1);
+                        	
+				agregarErrorSemantico(nombre,yylineno,yycolumno,"Libreria");
                                  $$ = 0;
                               }
                             }
@@ -307,10 +333,10 @@ esfuncion:	IDENTIFICADOR '{' parejecutable k
 parejecutable:	parejecutable ',' tipoparejec
 		| tipoparejec
 		| /* cadena vacia*/
-tipoparejec:	RESERV_ENT IDENTIFICADOR {insertar_diccionario(&diccionario, $2,"Variable","Entero","Externas","Parametro de funciión", 0);}
-		|  RESERV_DEC IDENTIFICADOR {insertar_diccionario(&diccionario, $2,"Variable","Decimal","Externas","Parametro de funciión", 0); }
-		|  RESERV_STR IDENTIFICADOR {insertar_diccionario(&diccionario, $2,"Variable","Cadena","Externas","Parametro de funciión", 0);}
-		|  RESERV_LOG IDENTIFICADOR {insertar_diccionario(&diccionario, $2,"Variable","Booleana","Externas","Parametro de funciión", 0); }
+tipoparejec:	RESERV_ENT IDENTIFICADOR {insertar_diccionario(&diccionario, $2,"Variable","Entero","Externas","Parametro_de_funciión", 0);}
+		|  RESERV_DEC IDENTIFICADOR {insertar_diccionario(&diccionario, $2,"Variable","Decimal","Externas","Parametro_de_funciión", 0); }
+		|  RESERV_STR IDENTIFICADOR {insertar_diccionario(&diccionario, $2,"Variable","Cadena","Externas","Parametro_de_funciión", 0);}
+		|  RESERV_LOG IDENTIFICADOR {insertar_diccionario(&diccionario, $2,"Variable","Booleana","Externas","Parametro_de_funciión", 0); }
 		
 
 ;
@@ -336,10 +362,14 @@ tipovariable2:	tipovariable2 ',' asigidentificador
 asigidentificador: IDENTIFICADOR  { ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada == NULL) { /* encontrada */
 				
-                                 insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable de funcion",0);
+                                 insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable_de_funcion",0);
                               }
                               else {
                                  printf("ERROR: variable %s ya definida\n", $1);
+				char* nombre = (char *) malloc (strlen($1) + 30);
+				sprintf(nombre, "variable_%s_ya_definida", $1);
+                        	
+				agregarErrorSemantico(nombre,yylineno,yycolumno,"Principal");
 
                               }
                             }
@@ -353,10 +383,14 @@ tipvariable:	RESERV_ENT
 ;
 asigvalor:		IDENTIFICADOR RESERV_CON expresion2{ENTRADA * entrada = buscar_diccionario(&diccionario,$1);
                               if (entrada != NULL) { /* encontrada */
-                                 insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable de funcion", $3);
+                                 insertar_diccionario(&diccionario, $1,"Variable","Entero","Local","Variable_de_funcion", $3);
                               }
                               else {
                                  printf("ERROR: variable %s no definida\n", $1);
+								char* nombre = (char *) malloc (strlen($1) + 30);
+				sprintf(nombre, "variable_%s_no_definida", $1);
+                        	
+				agregarErrorSemantico(nombre,yylineno,yycolumno,"Principal");
 
                               }
                             }
@@ -369,6 +403,10 @@ expresion2:	CONSTANTE_REAL   { $$ = (int) $1; }
                               }
                               else {
                                  printf("ERROR: variable %s no definida\n", $1);
+								char* nombre = (char *) malloc (strlen($1) + 30);
+				sprintf(nombre, "variable_%s_no_definida", $1);
+                        	
+				agregarErrorSemantico(nombre,yylineno,yycolumno,"Principal");
                                  $$ = 0;
                               }
                             }
@@ -447,6 +485,7 @@ int main(int argc, char** argv) {
 FILE *pf3;
 pf3 = fopen("errSintactico.txt","w"); 
 fclose(pf3);
+
      if (argc>1)
 	yyin=fopen(argv[1],"rt");
     else

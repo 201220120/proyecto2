@@ -94,7 +94,8 @@ extern int yydebug;
     RESERV_PAL = 304,
     RESERV_ENTERO = 305,
     RESERV_DECIMAL = 306,
-    RESERV_BOOLEANO = 307
+    RESERV_BOOLEANO = 307,
+    imprimirimprimir = 308
   };
 #endif
 
@@ -103,13 +104,13 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 103 "parserp.y" /* yacc.c:1909  */
+#line 107 "parserp.y" /* yacc.c:1909  */
 
     int    valor_entero;
     double valor_real;
     char * texto;
 
-#line 113 "parserp.tab.h" /* yacc.c:1909  */
+#line 114 "parserp.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

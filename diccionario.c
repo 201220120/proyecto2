@@ -18,6 +18,21 @@ void inicializar_diccionario(DICCIONARIO *d) {
         printf("ERROR: no hay memoria para el diccionario\n");
         exit(1);
     }
+
+
+}
+
+void inicializar_diccionariosss(DICCIONARIO *d) {
+
+    d->tamano = 0;
+    d->entradas = (ENTRADA *) malloc(MAX_DICCIONARIO * sizeof (ENTRADA));
+    if (d->entradas == NULL) {
+        printf("ERROR: no hay memoria para el diccionario\n");
+        exit(1);
+    }
+
+
+
 }
 
 /* 
@@ -106,18 +121,69 @@ void volcar_diccionario(DICCIONARIO *d) {
     int i;
     printf("\n\t------Variables en el archivo------\n");
     printf("\t[NOMBRE]   [VALOR]   [TIPO DE DATO]   [TIPO DE SIMBOLO]   [AMBITO]   [DESCRIPCION]\n");
+    FILE *res;
+    res = fopen("simbolos.html", "a+");
+    fputs("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />", res);
+    fputs("<html><body><center><table border=\"1\" bordercolor=\"#85f064\" cellpadding=\"1\" cellspacing=\"1\"><tbody>", res);
+    fputs("<tr><td style=\"width: 300px;\"> ", res);
+    fputs("<H1>TABLA DE SIMBOLOS</H1>", res);
+    fputs("</font></td><tr>", res);
     for (i = 0; i < d->tamano; i++) {
         char* b = d->entradas[i].tipoDato;
-        
-        int a = 0;
-        
-        if (b[0] == 'E') {
-            printf("\t%s -> %d -> %s -> %s -> %s -> %s\n", d->entradas[i].nombre,(int)d->entradas[i].valor, d->entradas[i].tipoDato, d->entradas[i].tipoSimbolo, d->entradas[i].ambito, d->entradas[i].descripcion);
+
+        char rango[3];
+        if (i % 2 != 0) {
+            char* color = "<tr  bgcolor= \"#acf3ca\" > ";
+            fputs(color, res);
         } else {
-            printf("\t%s -> %f -> %s -> %s -> %s -> %s\n", d->entradas[i].nombre,d->entradas[i].valor, d->entradas[i].tipoDato, d->entradas[i].tipoSimbolo, d->entradas[i].ambito, d->entradas[i].descripcion);
+            char* color = "<tr  bgcolor= \"#ffffff\" >";
+            fputs(color, res);
+        }
+
+
+        sprintf(rango, "%d", i + 1);
+        fputs("<td style=\"width: 30px;\"> ", res);
+        fputs(rango, res);
+        fputs("</font></td>", res);
+
+        fputs("<td style=\"width: 120px;\"><b>", res);
+        fputs(d->entradas[i].nombre, res);
+        fputs("</b> </font></td>", res);
+
+        fputs("<td style=\"width: 120px;\"><b>", res);
+        fputs(d->entradas[i].tipoSimbolo, res);
+        fputs("</b> </font></td>", res);
+
+        fputs("<td style=\"width: 120px;\"><b>", res);
+        fputs(d->entradas[i].tipoDato, res);
+        fputs("</b> </font></td>", res);
+
+        fputs("<td style=\"width: 120px;\"><b>", res);
+        fputs(d->entradas[i].ambito, res);
+        fputs("</b> </font></td>", res);
+
+        fputs("<td style=\"width: 250px;\"><b>", res);
+        fputs(d->entradas[i].descripcion, res);
+        fputs("</b> </font></td>", res);
+
+        char valor[11];
+        sprintf(valor, "%d", (int) d->entradas[i].valor);
+
+        fputs("<td style=\"width: 80px;\"><b>", res);
+        fputs(valor, res);
+        fputs("</b> </font></td><tr>", res);
+
+
+        if (b[0] == 'E') {
+            printf("\t%s -> %d -> %s -> %s -> %s -> %s\n", d->entradas[i].nombre, (int) d->entradas[i].valor, d->entradas[i].tipoDato, d->entradas[i].tipoSimbolo, d->entradas[i].ambito, d->entradas[i].descripcion);
+        } else {
+            printf("\t%s -> %f -> %s -> %s -> %s -> %s\n", d->entradas[i].nombre, d->entradas[i].valor, d->entradas[i].tipoDato, d->entradas[i].tipoSimbolo, d->entradas[i].ambito, d->entradas[i].descripcion);
         }
 
 
     }
+    fclose(res);
+}
 
+void generarGrafica(char*nombre) {
 }

@@ -2,42 +2,28 @@ incluir "funciones.fnm" alias fun
 
 Imprimir {}   como vac
 inicio funcion
-	contador, contador2, contador4 como ent
-	contador3 como dec
-	contador3 con 3
-	
+	contador, contador2,contador3 , contador4 como ent
 
-	si contador3 < contador4 entonces
-		contador2 con 6+2
-		contador4 con contador2+1
-	fin si
+	contador3 con 3
 
 	repetir
-		contador con 5
+		imprimir('ejemplo'? 'dos')
 	hasta 5 
-
-	para contador2 con 0 hasta 9 y paso 1 hacer
-		contador con 12
-	fin para
 
 
 fin funcion
 
-Imprimir {}   como vac
-inicio funcion
-
-fin funcio
 
 principal {} como vac
 inicio funcion
-	valor1 como ent
-	valor1 con 3
+	valor3 como ent
+	valor3 con 3
 	Imprimir()
-	imprimir('hola'? 'mundo' ? ' concatenacion')
-	imprimir('ejemplo dos'? 3)
-	graficar(hola)
-	fun.suma_enteros(valor1,2)
-	fun.resta_enteros(5,valor1)
+	imprimir('hola'? 'mundo' ? 'concatenacion')
+	imprimir('ejemplodos'? 3)
+	graficar(Imprimir)
+	fun.suma_enteros(valor3,2)
+	fun.resta_enteros(5,valor3)
 fin funcion
 
 	

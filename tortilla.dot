@@ -1,0 +1,26 @@
+/*digraph tortilla_v3 {
+
+ batir_huevos -> echar_sal_huevos
+ esperar_a_que_se_doren -> echar_sal_patatas
+       node [shape=diamond,style=filled,color=lightgrey]; "ingredientes";
+ ingredientes -> pelar_patatas
+        node [shape=box,style=filled,color=lightgrey];pelar_patatas -> cortar_patatas
+        cortar_patatas -> freir_patatas
+        freir_patatas -> esperar_a_que_se_doren
+        freir_patatas -> batir_huevos
+        echar_sal_patatas -> mezclar_huevos_patatas
+        echar_sal_huevos -> mezclar_huevos_patatas
+        mezclar_huevos_patatas -> cocinar
+        cocinar -> dar_la_vuelta
+        dar_la_vuelta -> cocinar
+        dar_la_vuelta -> servir
+}
+*/
+digraph grafica {
+ANTERIOR -> SI_SENTENCIA
+SI_SENTENCIA -> NO
+SI_SENTENCIA -> SI
+node [shape=ellipse,style=filled,color=lightgrey];NO -> SIGUIENTE
+SI -> SIGUIENTE
+
+ }

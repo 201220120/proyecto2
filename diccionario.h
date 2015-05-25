@@ -22,8 +22,13 @@ struct entrada {
     	char* descripcion;
 	double valor;
 };
+struct funcion {
+	char * nombre;
+	char* contenido;
+};
 
 typedef struct entrada ENTRADA;
+
 
 struct diccionario {
 	int tamano;
@@ -41,6 +46,6 @@ void insertar_diccionario(DICCIONARIO *d, char * nombre,char* tipoSimbolo,char *
 ENTRADA * buscar_diccionario(DICCIONARIO *d, char * nombre);
 void eliminar_diccionario(DICCIONARIO *d, char * nombre);
 void volcar_diccionario(DICCIONARIO *d);
-
+void inicializar_diccionariosss(DICCIONARIO *d);
 #endif  /* _DICCIONARIO_H */
 

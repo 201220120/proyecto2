@@ -103,7 +103,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 95 "parser.y" /* yacc.c:1909  */
+#line 101 "parser.y" /* yacc.c:1909  */
 
     int    valor_entero;
     double valor_real;

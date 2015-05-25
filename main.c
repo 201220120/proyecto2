@@ -316,7 +316,80 @@ int generarSintactico(char* s2, char* nom) {
     }
     fclose(arc2);
 
+
+
+
     fclose(errLex);
+
+    FILE* archiv;
+
+    archiv = fopen("semantico.txt", "r");
+    fseek(archiv, 0, SEEK_END); //Nos vamos el final del archivo
+
+    if (ftell(archiv) > 1) {
+       
+        FILE *pdf;
+        pdf = fopen("sintactico.html", "w");
+        fputs("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />", pdf);
+        fputs("<html><body><center><table border=\"1\" bordercolor=\"#85f064\" cellpadding=\"1\" cellspacing=\"1\"><tbody>", pdf);
+        fputs("<tr  bgcolor= \"#009e43\" > <td style=\"width: 70px;\"><b>No.</b></font></td> ", pdf);
+        fputs("<td style=\"width: 60px;\"><b>Linea</b> </font></td>", pdf);
+        fputs("<td style=\"width: 60px;\"><b>Columna</b> </font></td>", pdf);
+        fputs("<td style=\"width: 100px;\"><b>Error Sintactico</b> </font></td> <tr>", pdf);
+        fputs("<td style=\"width: 100px;\"><b>Tipo de Archivo</b> </font></td> <tr>", pdf);
+        char lineas[8000];
+        char *ptrToken;
+        int i = 1;
+        char rango[3];
+        while (fscanf(archiv, "%s", lineas) == 1) {
+            ptrToken = strtok(lineas, ",");
+
+            while (ptrToken != NULL) {
+
+                if (i % 2 != 0) {
+                    char* color = "<tr  bgcolor= \"#acf3ca\" > ";
+                    fputs(color, pdf);
+                } else {
+                    char* color = "<tr  bgcolor= \"#ffffff\" >";
+                    fputs(color, pdf);
+                }
+                sprintf(rango, "%d", i);
+                fputs("<td style=\"width: 70px;\"> ", pdf);
+
+                fputs(rango, pdf);
+                fputs("</font></td>", pdf);
+
+                fputs("<td style=\"width: 60px;\"><b>", pdf);
+                fputs(ptrToken, pdf);
+                fputs("</b> </font></td>", pdf);
+
+                ptrToken = strtok(NULL, ",");
+                fputs("<td style=\"width: 60px;\"><b>", pdf);
+                fputs(ptrToken, pdf);
+                fputs("</b> </font></td>", pdf);
+
+                ptrToken = strtok(NULL, ",");
+                fputs("<td style=\"width: 100px;\"><b>", pdf);
+                fputs(ptrToken, pdf);
+                fputs("</b> </font></td>", pdf);
+                ptrToken = strtok(NULL, ",");
+                fputs("<td style=\"width: 100px;\"><b>", pdf);
+                fputs(ptrToken, pdf);
+                fputs("</b> </font></td><tr>", pdf);
+                i++;
+
+                ptrToken = strtok(NULL, ",");
+            }
+
+        }
+        fclose(pdf);
+       // system("xdg-open sintactico.html");
+
+    }
+    fclose(archiv);
+
+  
+    system("xdg-open simbolos.html");
     return 1;
 }
 
@@ -324,14 +397,20 @@ int generarAnalisisPrincipal(char* pToken) {
     char* tmp2 = "Se asigna la memoria necesaria para el funcionamiento del archivo";
     char TInOrden[900];
     char* s1 = malloc(sizeof (char)*(2 * strlen(TInOrden) + strlen(tmp2) + 10));
-    system("flex scanner.l && bison -d parserp.y && cc lex.yy.c parserp.tab.c -o analizadorP -lfl -lm diccionario.c");
+    system("flex scanner.l && bison -d parserp.y && cc lex.yy.c parserp.tab.c -o analizadorP -lfl -lm diccionario.c funciones.c");
     char* tmp1 = "./analizadorP ";
     printf("\n\n\t.:OPERACION DEL ARCHIVO: %s:.\n", pToken);
     strcpy(s1, tmp1);
     strcat(s1, pToken);
     system(s1);
-    
-    
+
+
+
+}
+
+void generarSemanticoPDF(FILE* archi) {
+
+
 
 }
 
@@ -370,6 +449,8 @@ int main(int argc, char* argv[]) {
     if (argc < 2) {
         printf("Debe ingresar un archivo a analisar\nEjemplo: 201220120 proyecto.olc");
     } else {
+
+        if (remove("simbolos.html") == -1);
         FILE* archivo = NULL;
         char* nombreArchivo = argv[1];
         archivo = fopen(nombreArchivo, "r");
@@ -416,7 +497,7 @@ int main(int argc, char* argv[]) {
 
     }
 
-            
+
     if (remove("analizadorP") == -1);
     if (remove("scanner") == -1);
     if (remove("archivo1.txt") == -1);
@@ -425,6 +506,8 @@ int main(int argc, char* argv[]) {
     if (remove("errSintactico.txt") == -1);
     if (remove("archivo2.txt") == -1);
     if (remove("archivo3.txt") == -1);
+    //if (remove("semantico.txt") == -1);
+    
     return 0;
 }
 
